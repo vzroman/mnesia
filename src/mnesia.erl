@@ -1778,7 +1778,6 @@ dirty_write(Val) ->
 
 -spec dirty_write(Tab::table(), Record::tuple()) -> 'ok'.
 dirty_write(Tab, Val) ->
-		io:format("mnesia dirty write"),
     do_dirty_write(async_dirty, Tab, Val).
 
 do_dirty_write(SyncMode, Tab, Val)
