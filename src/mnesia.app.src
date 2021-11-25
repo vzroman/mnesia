@@ -1,6 +1,6 @@
 {application, mnesia,
  [{description, "A distributed telecommunications DBMS"},
-  {vsn, "4.6.13"},
+  {vsn, "4.16.3"},
   {registered, []},
   {mod, {mnesia_app, []}},
   {applications,
