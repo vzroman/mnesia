@@ -1,0 +1,15 @@
+{application, mnesia,
+ [{description, "A distributed telecommunications DBMS"},
+  {vsn, "4.6.13"},
+  {registered, []},
+  {mod, {mnesia_app, []}},
+  {applications,
+   [kernel,
+    stdlib
+   ]},
+  {env,[]},
+  {modules, []},
+
+  {licenses, ["Apache 2.0"]},
+  {links, []}
+ ]}.
