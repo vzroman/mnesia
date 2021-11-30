@@ -1725,13 +1725,6 @@ make_add_table_copy(Tab, Node, Storage) ->
     [{op, add_table_copy, Storage, Node, vsn_cs2list(Cs2)}].
 
 del_table_copy(Tab, Node) ->
-  try
-    if
-      Tab =/= schema -> ok
-    end
-  catch
-    _:_:Stack -> io:format("DEBUG: del schema from ~p, stack ~p\r\n",[Node, Stack])
-  end,
     schema_transaction(fun() -> do_del_table_copy(Tab, Node) end).
 
 do_del_table_copy(Tab, Node) when is_atom(Node)  ->
