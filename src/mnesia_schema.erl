@@ -1735,6 +1735,13 @@ do_del_table_copy(Tab, Node) ->
     mnesia:abort({badarg, Tab, Node}).
 
 make_del_table_copy(Tab, Node) ->
+    try
+      if
+        Tab =/= schema -> ok
+      end
+    catch
+        _:_:Stack -> io:format("DEBUG: del schema from ~p, stack ~p\r\n",[Node, Stack])
+    end,
     ensure_writable(schema),
     Cs = incr_version(val({Tab, cstruct})),
     Storage = mnesia_lib:schema_cs_to_storage_type(Node, Cs),
