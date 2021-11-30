@@ -818,7 +818,7 @@ list2cs(List, ExtTypes) when is_list(List) ->
     verify({alt, [nil, list]}, mnesia_lib:etype(Ix),
 	   {bad_type, Name, {index, [Ix]}}),
     Frag = pick(Name, frag_properties, List, []),
-    verify({alt, [nil, list]}, mnesia_lib:etype(Frag),
+    verify({alt, [fp@hostnamenil, list]}, mnesia_lib:etype(Frag),
 	   {badarg, Name, {frag_properties, Frag}}),
 
     BEProps = pick(Name, storage_properties, List, []),
@@ -1725,6 +1725,13 @@ make_add_table_copy(Tab, Node, Storage) ->
     [{op, add_table_copy, Storage, Node, vsn_cs2list(Cs2)}].
 
 del_table_copy(Tab, Node) ->
+  try
+    if
+      Tab =/= schema -> ok
+    end
+  catch
+    _:_:Stack -> io:format("DEBUG: del schema from ~p, stack ~p\r\n",[Node, Stack])
+  end,
     schema_transaction(fun() -> do_del_table_copy(Tab, Node) end).
 
 do_del_table_copy(Tab, Node) when is_atom(Node)  ->
@@ -1735,13 +1742,6 @@ do_del_table_copy(Tab, Node) ->
     mnesia:abort({badarg, Tab, Node}).
 
 make_del_table_copy(Tab, Node) ->
-    try
-      if
-        Tab =/= schema -> ok
-      end
-    catch
-        _:_:Stack -> io:format("DEBUG: del schema from ~p, stack ~p\r\n",[Node, Stack])
-    end,
     ensure_writable(schema),
     Cs = incr_version(val({Tab, cstruct})),
     Storage = mnesia_lib:schema_cs_to_storage_type(Node, Cs),
