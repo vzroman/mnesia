@@ -158,7 +158,7 @@
 	 dcd2ets/2,
 	 init/0,
 	 init_log_dump/0,
-	 log/1,
+	 log/1, log/2,
 	 slog/1,
 	 log_decision/1,
 	 log_files/0,
