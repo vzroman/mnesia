@@ -1861,34 +1861,8 @@ do_abort(Tid, Commit) ->
     Commit.
 
 do_dirty(Tid, Commit) when Commit#commit.schema_ops == [] ->
-	case is_dirty_update(Commit#commit.disc_copies++Commit#commit.disc_only_copies) of
-		false->
-			mnesia_log:log(Commit),
-			do_commit(Tid, Commit);
-		true->
-			dirty_log(Commit,do_commit(Tid, Commit))
-	end.
-
-is_dirty_update([{_, _, dirty_update}|_])->true;
-is_dirty_update([_|Rest])->is_dirty_update(Rest);
-is_dirty_update([])->false.
-
-dirty_log(Commit,{New,Old})->
-	RealCommit=
-		case Commit of
-			#commit{disc_copies = [{TabKey, _Fun, dirty_update}]}->Commit#commit{disc_copies = [build_commit(TabKey,{New,Old})]};
-			#commit{disc_only_copies = [{TabKey, _Fun, dirty_update}]}->Commit#commit{disc_only_copies = [build_commit(TabKey,{New,Old})]}
-		end,
-	mnesia_log:log(RealCommit),
-	{New,Old};
-dirty_log(Commit,Res)->
-	mnesia_log:log(Commit),
-	Res.
-
-build_commit(TabKey,{undefined,_})->
-	{TabKey, TabKey, delete};
-build_commit(TabKey,{New,_})->
-	{TabKey, New, write}.
+	mnesia_log:log(Commit, _Dirty = true),
+	do_commit(Tid, Commit).
 
 
 %% do_commit(Tid, CommitRecord)

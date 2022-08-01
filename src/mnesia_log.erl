@@ -225,7 +225,9 @@ sappend(Log, Term) ->
 
 %% Write commit records to the latest_log
 log(C) ->
-    case need_log(C) andalso mnesia_monitor:use_dir() of
+	log(C, _Dirty = false).
+log(C, Dirty) ->
+    case need_log(C, Dirty) andalso mnesia_monitor:use_dir() of
         true ->
 	    if
 		is_record(C, commit) ->
@@ -243,7 +245,7 @@ log(C) ->
 %% Synced
 
 slog(C) ->
-    case need_log(C) andalso mnesia_monitor:use_dir() of
+    case need_log(C,_Dirty = false) andalso mnesia_monitor:use_dir() of
         true ->
 	    if
 		is_record(C, commit) ->
@@ -258,9 +260,20 @@ slog(C) ->
 	    ignore
     end.
 
-need_log(#commit{disc_copies=[], disc_only_copies=[], schema_ops=[], ext=Ext}) ->
+need_log(#commit{disc_copies=_, disc_only_copies=_, schema_ops=[], ext=_Ext}, _Dirty = true) ->
+	%%---------------DO DIRTY OPERATIONS NEED LOG?-------------------------------
+	%% The result of mnesia_lib:insert during the dirty commit is not handled by the mnesia.
+	%% So we can get some difference in the log and actual copy state. Therefore when we
+	%% recover from logs we may set the copy in the state according to the log or can not if
+	%% the log was already dumped. Do we need to get concerned about these records if they are dirty?
+	%% Yes we can lost some disc_copies records because their dump is not triggered by the
+	%% 		dump_log_write_threshold
+	%% but the are still dirty and disc_only copies are still dumped by the
+	%% 		dump_log_time_threshold
+	false;
+need_log(#commit{disc_copies=[], disc_only_copies=[], schema_ops=[], ext=Ext}, _Dirty = false) ->
     lists:keymember(ext_copies, 1, Ext);
-need_log(_) -> true.
+need_log(_,_) -> true.
 
 strip_snmp(#commit{ext=[]}=CR) -> CR;
 strip_snmp(#commit{ext=Ext}=CR) ->
