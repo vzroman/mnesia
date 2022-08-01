@@ -28,6 +28,7 @@
 	 close_dets/1,
 	 close_log/1,
 	 detect_inconcistency/2,
+	 env/0,
 	 get_env/1,
 	 init/0,
 	 mktab/2,
