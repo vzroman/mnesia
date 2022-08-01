@@ -260,7 +260,7 @@ slog(C) ->
 	    ignore
     end.
 
-need_log(#commit{disc_copies=[], disc_only_copies=_, schema_ops=[], ext=_Ext}, _Dirty = true) ->
+need_log(#commit{disc_copies=[], disc_only_copies=[], schema_ops=[], ext=_Ext}, _Dirty = true) ->
 	%%---------------DO DIRTY OPERATIONS NEED LOG?-------------------------------
 	%% The result of mnesia_lib:insert during the dirty commit is not handled by the mnesia.
 	%% So we can get some difference in the log and actual copy state. Therefore when we
