@@ -199,10 +199,11 @@ net_load_table(Tab, {dumper,{add_table_copy, _}}=Reason, Ns, Cs) ->
 		% ATTENTION! DLSS trick, if the table is dlss segment then it's already copied
 
 		case atom_to_binary(Tab,utf8) of
-			<<"dlss_schema">> ->
-				% schema is usual table
-				try_net_load_table(Tab, Reason, Ns, Cs);
-			<<"dlss_",_/binary>> ->
+			<<"dlss_",_/binary>> when Tab =/= dlss_schema, Ns=/=[] ->
+				[Node|_] = Ns,
+				set({Tab, load_node}, Node),
+				set({Tab, load_reason}, Reason),
+				mnesia_controller:i_have_tab(Tab),
 				{loaded, ok};
 			_->
 				try_net_load_table(Tab, Reason, Ns, Cs)
