@@ -195,7 +195,18 @@ do_get_disc_copy2(Tab, Reason, Storage = {ext, Alias, Mod}, _Type) ->
 -define(MAX_NOPACKETS, 20).
 
 net_load_table(Tab, {dumper,{add_table_copy, _}}=Reason, Ns, Cs) ->
-    try_net_load_table(Tab, Reason, Ns, Cs);
+
+		% ATTENTION! DLSS trick, if the table is dlss segment then it's already copied
+
+		case atom_to_binary(Tab,utf8) of
+			<<"dlss_schema">> ->
+				% schema is usual table
+				try_net_load_table(Tab, Reason, Ns, Cs);
+			<<"dlss_",_/binary>> ->
+				{loaded, ok};
+			_->
+				try_net_load_table(Tab, Reason, Ns, Cs)
+		end;
 net_load_table(Tab, Reason, Ns, _Cs) ->
     try_net_load_table(Tab, Reason, Ns, val({Tab, cstruct})).
 
